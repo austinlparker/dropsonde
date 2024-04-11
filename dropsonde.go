@@ -3,16 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/gorilla/websocket"
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/ptrace"
-	"net/http"
-	"net/url"
-	"os"
-	"strings"
 )
 
 type responseMsg struct {
@@ -194,7 +195,14 @@ func (m model) View() string {
 	row := lipgloss.NewStyle().Width(80).Render(lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...))
 	view.WriteString(row)
 	view.WriteString("\n")
-	view.WriteString(windowStyle.Width((lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize())).Render(m.renderMetrics()))
+	switch m.activeTab {
+	case 0:
+		view.WriteString(windowStyle.Width((lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize())).Render(m.renderMetrics()))
+	case 1:
+		view.WriteString(windowStyle.Width((lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize())).Render(m.renderTraces()))
+	default:
+		view.WriteString(windowStyle.Width((lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize())).Render(m.renderMetrics()))
+	}
 	return docStyle.Render(view.String())
 }
 
@@ -221,6 +229,28 @@ func (m model) renderMetrics() string {
 		}
 	}
 	return metricString.String()
+}
+
+func (m model) renderTraces() string {
+	traceString := strings.Builder{}
+	for i := 0; i < len(m.traces); i++ {
+		rs := m.traces[i].ResourceSpans()
+		for j := 0; j < rs.Len(); j++ {
+			ss := rs.At(j).ScopeSpans()
+			for k := 0; k < ss.Len(); k++ {
+				spanList := ss.At(k)
+				spans := spanList.Spans()
+				for v := 0; v < spans.Len(); v++ {
+					span := spans.At(v)
+					traceString.WriteString(span.Name())
+					traceString.WriteString(" ")
+					traceString.WriteString(span.TraceID().String())
+					traceString.WriteString("\n")
+				}
+			}
+		}
+	}
+	return traceString.String()
 }
 
 func main() {
