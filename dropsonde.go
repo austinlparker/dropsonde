@@ -210,9 +210,12 @@ func (m model) renderMetrics() string {
 				name := scopeMetric.Scope().Name()
 				metricString.WriteString(name)
 				for v := 0; v < scopeMetrics.Len(); v++ {
-					value := scopeMetric.Metrics().At(v)
-					metricString.WriteString(value.Name())
-					metricString.WriteString("\n")
+					metrics := scopeMetric.Metrics()
+					for l := 0; l < metrics.Len(); l++ {
+						value := metrics.At(l)
+						metricString.WriteString(value.Name())
+						metricString.WriteString("\n")
+					}
 				}
 			}
 		}
