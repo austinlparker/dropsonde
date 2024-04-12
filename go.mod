@@ -7,6 +7,9 @@ require (
 	github.com/charmbracelet/bubbletea v0.25.0
 	github.com/gorilla/websocket v1.5.1
 	go.opentelemetry.io/collector/pdata v1.4.0
+	github.com/lxzan/gws v1.8.1
+	github.com/xtaci/kcp-go/v5 v5.6.8
+
 )
 
 require (

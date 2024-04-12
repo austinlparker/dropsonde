@@ -2,15 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"net/http"
-	"net/url"
-	"os"
+	"github.com/austinlparker/dropsonde/cmd"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/gorilla/websocket"
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/ptrace"
@@ -20,73 +15,6 @@ type responseMsg struct {
 	ResourceSpans   json.RawMessage `json:"resourceSpans,omitempty"`
 	ResourceMetrics json.RawMessage `json:"resourceMetrics,omitempty"`
 	ResourceLogs    json.RawMessage `json:"resourceLogs,omitempty"`
-}
-
-type tapMessage struct {
-	data []byte
-}
-
-var (
-	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
-	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
-	docStyle          = lipgloss.NewStyle().Padding(1, 2, 1, 2)
-	highlightColor    = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
-	inactiveTabStyle  = lipgloss.NewStyle().Border(inactiveTabBorder, true).BorderForeground(highlightColor).Padding(0, 1)
-	activeTabStyle    = inactiveTabStyle.Copy().Border(activeTabBorder, true)
-	windowStyle       = lipgloss.NewStyle().BorderForeground(highlightColor).Padding(2, 0).Align(lipgloss.Center).Border(lipgloss.NormalBorder()).UnsetBorderTop()
-)
-
-func NewWsConnection() (*websocket.Conn, error) {
-	wsURL := url.URL{Scheme: "ws", Host: "localhost:12001", Path: "/"}
-	headers := make(http.Header)
-	headers.Set("Origin", "http://localhost")
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL.String(), headers)
-	if err != nil {
-		return nil, err
-	}
-	return conn, nil
-}
-
-func tabBorderWithBottom(left, middle, right string) lipgloss.Border {
-	border := lipgloss.RoundedBorder()
-	border.BottomLeft = left
-	border.Bottom = middle
-	border.BottomRight = right
-	return border
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func waitForMessages(ws chan []byte) tea.Cmd {
-	return func() tea.Msg {
-		return tapMessage{
-			<-ws,
-		}
-	}
-}
-
-func listenForMessages(conn *websocket.Conn, c chan []byte) tea.Cmd {
-	return func() tea.Msg {
-		for {
-			_, msg, err := conn.ReadMessage()
-			if err != nil {
-				tea.Println("Error reading message", err)
-			}
-			c <- msg
-		}
-	}
 }
 
 func (m *model) assignMessage(msg tapMessage) {
@@ -127,18 +55,6 @@ func (m *model) assignMessage(msg tapMessage) {
 	}
 }
 
-type model struct {
-	tabs       []string
-	activeTab  int
-	wsConn     *websocket.Conn
-	msg        string
-	traces     []ptrace.Traces
-	metrics    []pmetric.Metrics
-	logs       []plog.Logs
-	shouldQuit bool
-	channel    chan []byte
-}
-
 func (m model) Init() tea.Cmd {
 	return tea.Batch(
 		listenForMessages(m.wsConn, m.channel),
@@ -167,43 +83,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	view := strings.Builder{}
 
-	var renderedTabs []string
-
-	for i, t := range m.tabs {
-		var style lipgloss.Style
-		isFirst, isLast, isActive := i == 0, i == len(m.tabs)-1, i == m.activeTab
-		if isActive {
-			style = activeTabStyle.Copy()
-		} else {
-			style = inactiveTabStyle.Copy()
-		}
-		border, _, _, _, _ := style.GetBorder()
-		if isFirst && isActive {
-			border.BottomLeft = "│"
-		} else if isFirst && !isActive {
-			border.BottomLeft = "├"
-		} else if isLast && isActive {
-			border.BottomRight = "│"
-		} else if isLast && !isActive {
-			border.BottomRight = "┤"
-		}
-		style = style.Border(border)
-		renderedTabs = append(renderedTabs, style.Render(t))
-	}
-	row := lipgloss.NewStyle().Width(80).Render(lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...))
-	view.WriteString(row)
-	view.WriteString("\n")
-	switch m.activeTab {
-	case 0:
-		view.WriteString(windowStyle.Width((lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize())).Render(m.renderMetrics()))
-	case 1:
-		view.WriteString(windowStyle.Width((lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize())).Render(m.renderTraces()))
-	default:
-		view.WriteString(windowStyle.Width((lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize())).Render(m.renderMetrics()))
-	}
-	return docStyle.Render(view.String())
 }
 
 func (m model) renderMetrics() string {
@@ -231,6 +111,30 @@ func (m model) renderMetrics() string {
 	return metricString.String()
 }
 
+func (m model) renderMetricsBetter() string {
+	s := strings.Builder{}
+	for _, metric := range m.metrics {
+		resources := metric.ResourceMetrics()
+		for i := 0; i < resources.Len(); i++ {
+			resourceMetric := resources.At(i)
+			scopeMetrics := resourceMetric.ScopeMetrics()
+			for j := 0; j < scopeMetrics.Len(); j++ {
+				sm := scopeMetrics.At(j)
+				s.WriteString(sm.Scope().Name())
+				s.WriteString(" | ")
+				for k := 0; k < sm.Metrics().Len(); k++ {
+					m := sm.Metrics().At(k)
+					s.WriteString(m.Name())
+					s.WriteString(": ")
+					s.WriteString(m.Description())
+					s.WriteString("\n")
+				}
+			}
+		}
+	}
+	return s.String()
+}
+
 func (m model) renderTraces() string {
 	traceString := strings.Builder{}
 	for i := 0; i < len(m.traces); i++ {
@@ -254,31 +158,5 @@ func (m model) renderTraces() string {
 }
 
 func main() {
-	if len(os.Getenv("DEBUG")) > 0 {
-		f, err := tea.LogToFile("debug.log", "debug")
-		if err != nil {
-			fmt.Println("fatal:", err)
-			os.Exit(1)
-		}
-		defer f.Close()
-	}
-
-	wsConn, err := NewWsConnection()
-	if err != nil {
-		fmt.Println("could not connect to websocket:", err)
-		os.Exit(1)
-	}
-
-	tabs := []string{"Metrics", "Traces", "Logs"}
-
-	p := tea.NewProgram(&model{
-		wsConn:  wsConn,
-		channel: make(chan []byte),
-		tabs:    tabs,
-	})
-
-	if _, err := p.Run(); err != nil {
-		fmt.Println("could not start program:", err)
-		os.Exit(1)
-	}
+	cmd.Execute()
 }
