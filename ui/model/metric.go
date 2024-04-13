@@ -1,9 +1,11 @@
 package model
 
 import (
+	"fmt"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"slices"
+	"strings"
 )
 
 type Timeseries struct {
@@ -13,6 +15,26 @@ type Timeseries struct {
 	Resources   pcommon.Resource
 	Attributes  pcommon.Map
 	DataPoints  pmetric.NumberDataPointSlice
+}
+
+func TimeseriesToString(ts Timeseries) string {
+	s := strings.Builder{}
+	s.WriteString(fmt.Sprintf("Name: %v", ts.Name))
+	s.WriteString(fmt.Sprintf("\nDescription: %v", ts.Description))
+	s.WriteString("\n\nScope Information")
+	s.WriteString(fmt.Sprintf("\nName: %v", ts.Scope.Name()))
+	s.WriteString(fmt.Sprintf("\nVersion: %v", ts.Scope.Version()))
+	s.WriteString(fmt.Sprintf("\nAttributes: %v", ts.Scope.Attributes().AsRaw()))
+	s.WriteString("\n\nResource Information")
+	s.WriteString(fmt.Sprintf("\nAttributes: %v", ts.Resources.Attributes().AsRaw()))
+	s.WriteString("\nAttributes\n")
+	s.WriteString(fmt.Sprintf("\nAttributes: %v", ts.Attributes.AsRaw()))
+	s.WriteString("\nData Points\n")
+	for i := 0; i < ts.DataPoints.Len(); i++ {
+		s.WriteString(fmt.Sprintf("\nDataPoint: %v", ts.DataPoints.At(i)))
+		s.WriteString(fmt.Sprintf("Attributes: %v", ts.DataPoints.At(i).Attributes()))
+	}
+	return s.String()
 }
 
 func ParseMetricMessage(msg WSMessage) (pmetric.Metrics, error) {

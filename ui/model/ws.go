@@ -3,6 +3,7 @@ package model
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gorilla/websocket"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -14,6 +15,13 @@ func Dial(endpoint string) tea.Cmd {
 			return ErrMessage{err}
 		}
 		return NewClientMessage{conn}
+	}
+}
+
+func Close(ws *websocket.Conn) tea.Cmd {
+	return func() tea.Msg {
+		closeConn(ws)
+		return CloseClientMessage{}
 	}
 }
 
@@ -48,4 +56,12 @@ func newConn(endpoint string) (*websocket.Conn, error) {
 		return nil, err
 	}
 	return conn, nil
+}
+
+func closeConn(conn *websocket.Conn) {
+	err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	if err != nil {
+		log.Println("error:", err)
+		return
+	}
 }

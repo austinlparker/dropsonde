@@ -23,6 +23,7 @@ type model struct {
 	opAmpEndpoint     string
 	tabs              []string
 	activeView        stateView
+	lastView          stateView
 	tapMessageList    list.Model
 	activeTab         string
 	wsConn            *websocket.Conn
@@ -42,6 +43,8 @@ type model struct {
 	vpFullScreen      bool
 	showHelpIndicator bool
 	debugMode         bool
+	terminalHeight    int
+	terminalWidth     int
 }
 
 func (m model) Init() tea.Cmd {

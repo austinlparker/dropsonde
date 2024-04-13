@@ -2,7 +2,7 @@ extensions:
   opamp:
     server:
       ws:
-        endpoint: ws://127.0.0.1:4000/v1/opamp
+        endpoint: ws://0.0.0.0:12000/v1/opamp
         tls:
           insecure: true
 receivers:
@@ -16,13 +16,13 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: localhost:4317
+        endpoint: 0.0.0.0:4317
       http:
-        endpoint: localhost:4318
+        endpoint: 0.0.0.0:4318
 
 processors:
   remotetap:
-    endpoint: localhost:12001
+    endpoint: 0.0.0.0:12001
 exporters:
   debug:
 

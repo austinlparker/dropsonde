@@ -80,6 +80,7 @@ func (m model) View() string {
 
 	if m.debugMode {
 		debugMsg += fmt.Sprintf(" %v", m.activeView)
+		debugMsg += fmt.Sprintf(" %v", len(m.metrics))
 	}
 
 	footerStr := fmt.Sprintf("%s%s%s%s%s",

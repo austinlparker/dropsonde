@@ -23,6 +23,8 @@ type NewClientMessage struct {
 	conn *websocket.Conn
 }
 
+type CloseClientMessage struct{}
+
 type ParsedMetricMessage struct {
 	metrics pmetric.Metrics
 }
