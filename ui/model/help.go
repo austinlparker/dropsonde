@@ -1,7 +1,6 @@
 package model
 
-var (
-	HelpText = `
+var HelpText = `
 manual
 
 dropsonde has two views:
@@ -19,4 +18,3 @@ remote tap
 
 opamp
 `
-)

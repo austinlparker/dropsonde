@@ -7,20 +7,25 @@ import (
 	"net/url"
 )
 
-func (m model) Dial() tea.Msg {
-	conn, err := newConn(m.tapEndpoint)
-	if err != nil {
-		return ErrMessage{err}
+func Dial(endpoint string) tea.Cmd {
+	return func() tea.Msg {
+		conn, err := newConn(endpoint)
+		if err != nil {
+			return ErrMessage{err}
+		}
+		return NewClientMessage{conn}
 	}
-	return NewClientMessage{conn}
 }
 
 func ListenForMessage(conn *websocket.Conn, c chan []byte) tea.Cmd {
 	return func() tea.Msg {
 		for {
+			if conn == nil {
+				return ErrConnNotEstablished{nil}
+			}
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
-				return ErrMessage{err}
+				return ErrConnNotEstablished{err}
 				//TODO: handle reconnection
 			}
 			c <- msg
