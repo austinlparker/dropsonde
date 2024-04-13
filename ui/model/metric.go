@@ -5,6 +5,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -31,8 +32,17 @@ func TimeseriesToString(ts Timeseries) string {
 	s.WriteString(fmt.Sprintf("\nAttributes: %v", ts.Attributes.AsRaw()))
 	s.WriteString("\nData Points\n")
 	for i := 0; i < ts.DataPoints.Len(); i++ {
-		s.WriteString(fmt.Sprintf("\nDataPoint: %v", ts.DataPoints.At(i)))
-		s.WriteString(fmt.Sprintf("Attributes: %v", ts.DataPoints.At(i).Attributes()))
+		var dp string
+		switch ts.DataPoints.At(i).ValueType() {
+		case pmetric.NumberDataPointValueTypeInt:
+			dp = strconv.FormatInt(ts.DataPoints.At(i).IntValue(), 10)
+		case pmetric.NumberDataPointValueTypeDouble:
+			dp = strconv.FormatFloat(ts.DataPoints.At(i).DoubleValue(), 'f', -1, 64)
+		case pmetric.NumberDataPointValueTypeEmpty:
+			dp = "Empty"
+		}
+		s.WriteString(fmt.Sprintf("\nDataPoint: %v", dp))
+		s.WriteString(fmt.Sprintf("Attributes: %v", ts.DataPoints.At(i).Attributes().AsRaw()))
 	}
 	return s.String()
 }
