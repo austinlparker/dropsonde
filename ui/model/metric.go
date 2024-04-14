@@ -33,6 +33,8 @@ func TimeseriesToString(ts Timeseries) string {
 	s.WriteString("\nData Points\n")
 	for i := 0; i < ts.DataPoints.Len(); i++ {
 		var dp string
+		var t string
+		t = ts.DataPoints.At(i).Timestamp().String()
 		switch ts.DataPoints.At(i).ValueType() {
 		case pmetric.NumberDataPointValueTypeInt:
 			dp = strconv.FormatInt(ts.DataPoints.At(i).IntValue(), 10)
@@ -41,8 +43,9 @@ func TimeseriesToString(ts Timeseries) string {
 		case pmetric.NumberDataPointValueTypeEmpty:
 			dp = "Empty"
 		}
-		s.WriteString(fmt.Sprintf("\nDataPoint: %v", dp))
-		s.WriteString(fmt.Sprintf("Attributes: %v", ts.DataPoints.At(i).Attributes().AsRaw()))
+		s.WriteString(fmt.Sprintf("\nTime: %v", t))
+		s.WriteString(fmt.Sprintf("\nValue: %v\n", dp))
+		s.WriteString(fmt.Sprintf("\nAttributes: %v\n", ts.DataPoints.At(i).Attributes().AsRaw()))
 	}
 	return s.String()
 }

@@ -41,28 +41,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		_, h := stackListStyle.GetFrameSize()
 		m.terminalHeight = msg.Height
 		m.terminalWidth = msg.Width
-		m.tapMessageList.SetHeight(msg.Height - h - 1)
+		m.tapMessageList.SetHeight(msg.Height - h - 3)
 
 		if !m.metadataVPReady {
-			m.metadataVP = viewport.New(120, m.terminalHeight-1)
+			m.metadataVP = viewport.New(120, m.terminalHeight/2-8)
 			m.metadataVP.HighPerformanceRendering = useHighPerformanceRenderer
 			m.metadataVPReady = true
 		} else {
 			m.metadataVP.Width = 120
-			m.metadataVP.Height = 20
+			m.metadataVP.Height = 12
 		}
 
 		if !m.valueVPReady {
-			m.valueVP = viewport.New(120, m.terminalHeight-1)
+			m.valueVP = viewport.New(120, m.terminalHeight-8)
 			m.valueVP.HighPerformanceRendering = useHighPerformanceRenderer
 			m.valueVPReady = true
 		} else {
 			m.valueVP.Width = 120
-			m.valueVP.Height = 20
+			m.valueVP.Height = 12
 		}
 
 		if !m.helpVPReady {
-			m.helpVP = viewport.New(120, m.terminalHeight-1)
+			m.helpVP = viewport.New(120, m.terminalHeight-7)
 			m.helpVP.HighPerformanceRendering = useHighPerformanceRenderer
 			m.helpVP.SetContent(HelpText)
 			m.helpVPReady = true

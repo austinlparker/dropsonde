@@ -19,7 +19,7 @@ func RenderUI(tapEndpoint string, opAmpEndpoint string) {
 		defer f.Close()
 	}
 
-	p := tea.NewProgram(model.Initial(tapEndpoint, opAmpEndpoint), tea.WithAltScreen())
+	p := tea.NewProgram(model.Initial(tapEndpoint, opAmpEndpoint), tea.WithAltScreen(), tea.WithMouseCellMotion())
 	if _, err := p.Run(); err != nil {
 		log.Fatalf("error running program: %v", err)
 	}

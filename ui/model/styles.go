@@ -6,7 +6,7 @@ var (
 	baseStyle = lipgloss.NewStyle().
 			PaddingLeft(1).
 			PaddingRight(1).
-			Foreground(lipgloss.Color("#282828"))
+			Foreground(lipgloss.Color(OTEL_BLUE))
 
 	baseListStyle = lipgloss.NewStyle().PaddingTop(1).PaddingRight(2).PaddingLeft(1).PaddingBottom(1)
 
