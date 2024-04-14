@@ -5,30 +5,29 @@ import (
 	"os"
 )
 
-func Initial(tapEndpoint string, opAmpEndpoint string) model {
-	var appDelegateKeys = newAppDelegateKeyMap()
-	appDelegate := newAppItemDelegate(appDelegateKeys)
-	listItems := make([]list.Item, 0)
+func Initial(tapEndpoint string) model {
+	var rawDelegateKeys = newRawDelegateKeyMap()
+	rawDelegate := newRawItemDelegate(rawDelegateKeys)
+	rawListItems := make([]list.Item, 0)
 
 	var dbg bool
 	if len(os.Getenv("DEBUG")) > 0 {
 		dbg = true
 	}
 
-	tabs := []string{"Metrics", "Traces", "Logs"}
 	m := model{
-		tapEndpoint:    tapEndpoint,
-		opAmpEndpoint:  opAmpEndpoint,
-		tapMessageList: list.New(listItems, appDelegate, listWidth+10, 0),
-		tabs:           tabs,
-		channel:        make(chan []byte),
-		debugMode:      dbg,
+		tapEndpoint:       tapEndpoint,
+		rawDataList:       list.New(rawListItems, rawDelegate, listWidth+10, 0),
+		channel:           make(chan []byte),
+		debugMode:         dbg,
+		showHelpIndicator: true,
+		useRawDataView:    true,
 	}
 
-	m.tapMessageList.Title = "OpenTelemetry Metrics"
-	m.tapMessageList.SetStatusBarItemName("metric", "metrics")
-	m.tapMessageList.SetFilteringEnabled(false)
-	m.tapMessageList.SetShowHelp(false)
+	m.rawDataList.Title = "🔭"
+	m.rawDataList.SetStatusBarItemName("data", "data")
+	m.rawDataList.SetFilteringEnabled(true)
+	m.rawDataList.SetShowHelp(true)
 
 	return m
 }

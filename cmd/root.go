@@ -9,8 +9,7 @@ import (
 )
 
 var (
-	tapEndpoint   = flag.String("tap-endpoint", "", "opentelemetry collector remote tap endpoint")
-	opAmpEndpoint = flag.String("opamp-endpoint", "", "opentelemetry collector opamp endpoint")
+	tapEndpoint = flag.String("tap-endpoint", "", "opentelemetry collector remote tap endpoint")
 )
 
 func Execute() {
@@ -24,9 +23,6 @@ func Execute() {
 		fmt.Fprintf(os.Stderr, "Tap endpoint is required\n")
 		os.Exit(1)
 	}
-	if *opAmpEndpoint == "" {
-		fmt.Fprintf(os.Stderr, "OpAMP endpoint not set; Will not be enabled.\n")
-	}
 
-	ui.RenderUI(*tapEndpoint, *opAmpEndpoint)
+	ui.RenderUI(*tapEndpoint)
 }

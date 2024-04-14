@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"slices"
+	"time"
 )
 
 const useHighPerformanceRenderer = false
@@ -21,36 +22,27 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			Close(m.wsConn)
 			return m, tea.Quit
-		case "m":
+		case "l":
 			m.lastView = m.activeView
 			m.activeView = ListView
-			return m, nil
-		case "t":
-			m.activeTab = "traces"
-			return m, nil
-		case "l":
-			m.activeTab = "logs"
+			m.vpFullScreen = false
 			return m, nil
 		case "?":
 			m.lastView = m.activeView
 			m.activeView = HelpView
 			m.vpFullScreen = true
 			return m, nil
+		case "v":
+			m.lastView = m.activeView
+			m.activeView = ValueView
+			m.vpFullScreen = false
+			return m, nil
 		}
 	case tea.WindowSizeMsg:
 		_, h := stackListStyle.GetFrameSize()
 		m.terminalHeight = msg.Height
 		m.terminalWidth = msg.Width
-		m.tapMessageList.SetHeight(msg.Height - h - 3)
-
-		if !m.metadataVPReady {
-			m.metadataVP = viewport.New(120, m.terminalHeight/2-8)
-			m.metadataVP.HighPerformanceRendering = useHighPerformanceRenderer
-			m.metadataVPReady = true
-		} else {
-			m.metadataVP.Width = 120
-			m.metadataVP.Height = 12
-		}
+		m.rawDataList.SetHeight(msg.Height - h - 10)
 
 		if !m.valueVPReady {
 			m.valueVP = viewport.New(120, m.terminalHeight-8)
@@ -58,7 +50,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.valueVPReady = true
 		} else {
 			m.valueVP.Width = 120
-			m.valueVP.Height = 12
+			m.valueVP.Height = 20
 		}
 
 		if !m.helpVPReady {
@@ -66,6 +58,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.helpVP.HighPerformanceRendering = useHighPerformanceRenderer
 			m.helpVP.SetContent(HelpText)
 			m.helpVPReady = true
+		} else {
+			m.helpVP.Width = 120
+			m.helpVP.Height = 20
 		}
 	case NewClientMessage:
 		m.wsConn = msg.conn
@@ -81,6 +76,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.errorMsg = err.Error()
 				return m, nil
 			}
+			var it rawDataType
+			if res.ResourceSpans != nil {
+				it = TraceData
+			}
+			if res.ResourceLogs != nil {
+				it = LogData
+			}
+			if res.ResourceMetrics != nil {
+				it = MetricData
+			}
+			m.rawDataList.InsertItem(len(m.rawDataList.Items()),
+				RawDataItem{
+					item:     string(msg.data),
+					itemType: it,
+					time:     time.Now(),
+				})
 			if res.ResourceMetrics != nil {
 				metrics, err := ParseMetricMessage(msg)
 				if err != nil {
@@ -88,25 +99,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				}
 				m.metrics = AddOrUpdateMetricsToTimeseries(&metrics, m.metrics)
-				for _, ts := range m.metrics {
-					isPresent := false
-					for _, item := range m.tapMessageList.Items() {
-						if kti, ok := item.(KeyTimeseriesItem); ok {
-							if kti.name == ts.Name && kti.description == ts.Description {
-								isPresent = true
-								break
-							}
-						}
-					}
-					if !isPresent {
-						m.tapMessageList.InsertItem(len(m.tapMessageList.Items()),
-							KeyTimeseriesItem{
-								ts:          ts,
-								name:        ts.Name,
-								description: ts.Description,
-							})
-					}
-				}
 			}
 		}
 		return m, WaitForMessages(m.channel)
@@ -116,15 +108,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		})
 		m.valueVP.SetContent(TimeseriesToString(m.metrics[idx]))
 		return m, nil
-
+	case RawDataViewMessage:
+		m.valueVP.SetContent(msg.data)
+		return m, nil
 	}
 
 	switch m.activeView {
 	case ListView:
-		m.tapMessageList, cmd = m.tapMessageList.Update(msg)
-		cmds = append(cmds, cmd)
-	case MetadataView:
-		m.metadataVP, cmd = m.metadataVP.Update(msg)
+		m.rawDataList, cmd = m.rawDataList.Update(msg)
 		cmds = append(cmds, cmd)
 	case ValueView:
 		m.valueVP, cmd = m.valueVP.Update(msg)

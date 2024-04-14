@@ -7,3 +7,9 @@ func showItemDetails(name string) tea.Cmd {
 		return TimeseriesChosenMessage{name}
 	}
 }
+
+func showRawData(data string) tea.Cmd {
+	return func() tea.Msg {
+		return RawDataViewMessage{data}
+	}
+}

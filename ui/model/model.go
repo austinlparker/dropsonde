@@ -13,18 +13,17 @@ type stateView uint
 
 const (
 	ListView stateView = iota
-	MetadataView
 	ValueView
 	HelpView
 )
 
 type model struct {
 	tapEndpoint       string
-	opAmpEndpoint     string
 	tabs              []string
 	activeView        stateView
 	lastView          stateView
 	tapMessageList    list.Model
+	rawDataList       list.Model
 	activeTab         string
 	wsConn            *websocket.Conn
 	msg               string
@@ -35,16 +34,16 @@ type model struct {
 	shouldQuit        bool
 	channel           chan []byte
 	valueVP           viewport.Model
-	metadataVP        viewport.Model
 	helpVP            viewport.Model
+	rawVP             viewport.Model
 	valueVPReady      bool
-	metadataVPReady   bool
 	helpVPReady       bool
 	vpFullScreen      bool
 	showHelpIndicator bool
 	debugMode         bool
 	terminalHeight    int
 	terminalWidth     int
+	useRawDataView    bool
 }
 
 func (m model) Init() tea.Cmd {

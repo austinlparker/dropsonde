@@ -44,3 +44,7 @@ type TimeseriesMessage struct {
 type TimeseriesChosenMessage struct {
 	name string
 }
+
+type RawDataViewMessage struct {
+	data string
+}

@@ -7,14 +7,13 @@ import (
 )
 
 var (
-	listWidth = 50
+	listWidth = 60
 )
 
 func (m model) View() string {
 	var content string
 	var footer string
 	var msgsViewPtr string
-	var headerViewPtr string
 	var valueViewPtr string
 	var mode string
 	var statusBar string
@@ -24,18 +23,11 @@ func (m model) View() string {
 		statusBar = Trim(m.msg, 120)
 	}
 
-	m.tapMessageList.Title += msgsViewPtr
+	m.rawDataList.Title += msgsViewPtr
 
 	var errorMsg string
 	if m.errorMsg != "" {
 		errorMsg = " error: " + Trim(m.errorMsg, 120)
-	}
-
-	var msgMetadataVP string
-	if !m.metadataVPReady {
-		msgMetadataVP = "\n  Initializing..."
-	} else {
-		msgMetadataVP = viewPortStyle.Render(fmt.Sprintf("%s%s\n\n%s\n", kMsgMetadataTitleStyle.Render("Message Metadata"), headerViewPtr, m.metadataVP.View()))
 	}
 
 	var msgValueVP string
@@ -55,13 +47,11 @@ func (m model) View() string {
 	case false:
 		content = lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			stackListStyle.Render(m.tapMessageList.View()),
+			stackListStyle.Render(m.rawDataList.View()),
 			msgValueVP,
 		)
 	case true:
 		switch m.activeView {
-		case MetadataView:
-			content = msgMetadataVP
 		case ValueView:
 			content = msgValueVP
 		case HelpView:
@@ -80,7 +70,8 @@ func (m model) View() string {
 
 	if m.debugMode {
 		debugMsg += fmt.Sprintf(" %v", m.activeView)
-		debugMsg += fmt.Sprintf(" %v", len(m.metrics))
+		debugMsg += fmt.Sprintf(" th: %v", m.terminalHeight)
+		debugMsg += fmt.Sprintf(" tw: %v", m.terminalWidth)
 	}
 
 	footerStr := fmt.Sprintf("%s%s%s%s%s",

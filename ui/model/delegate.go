@@ -31,15 +31,7 @@ func newAppItemDelegate(keys *delegateKeyMap) list.DefaultDelegate {
 		switch msgType := msg.(type) {
 		case tea.KeyMsg:
 			switch {
-			case key.Matches(msgType,
-				keys.choose,
-				list.DefaultKeyMap().CursorUp,
-				list.DefaultKeyMap().CursorDown,
-				list.DefaultKeyMap().GoToStart,
-				list.DefaultKeyMap().GoToEnd,
-				list.DefaultKeyMap().NextPage,
-				list.DefaultKeyMap().PrevPage,
-			):
+			case key.Matches(msgType):
 				if item, ok := m.SelectedItem().(KeyTimeseriesItem); ok {
 					return showItemDetails(item.name)
 				} else {

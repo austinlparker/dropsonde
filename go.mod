@@ -7,10 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.25.0
 	github.com/charmbracelet/lipgloss v0.9.1
 	github.com/gorilla/websocket v1.5.1
-	github.com/lxzan/gws v1.8.1
-	github.com/xtaci/kcp-go/v5 v5.6.8
-	go.opentelemetry.io/collector/pdata v1.4.0
-
+	go.opentelemetry.io/collector/pdata v1.5.0
 )
 
 require (
@@ -33,10 +30,11 @@ require (
 	github.com/rivo/uniseg v0.4.6 // indirect
 	github.com/sahilm/fuzzy v0.1.1-0.20230530133925-c48e322e2a8f // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/net v0.20.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
-	golang.org/x/term v0.16.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/grpc v1.62.1 // indirect

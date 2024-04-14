@@ -9,7 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func RenderUI(tapEndpoint string, opAmpEndpoint string) {
+func RenderUI(tapEndpoint string) {
 	if len(os.Getenv("DEBUG")) > 0 {
 		f, err := tea.LogToFile("debug.log", "debug")
 		if err != nil {
@@ -19,7 +19,7 @@ func RenderUI(tapEndpoint string, opAmpEndpoint string) {
 		defer f.Close()
 	}
 
-	p := tea.NewProgram(model.Initial(tapEndpoint, opAmpEndpoint), tea.WithAltScreen(), tea.WithMouseCellMotion())
+	p := tea.NewProgram(model.Initial(tapEndpoint), tea.WithAltScreen(), tea.WithMouseCellMotion())
 	if _, err := p.Run(); err != nil {
 		log.Fatalf("error running program: %v", err)
 	}
