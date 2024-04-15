@@ -22,7 +22,6 @@ type model struct {
 	tabs              []string
 	activeView        stateView
 	lastView          stateView
-	tapMessageList    list.Model
 	rawDataList       list.Model
 	activeTab         string
 	wsConn            *websocket.Conn
