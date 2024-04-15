@@ -14,7 +14,8 @@ func Initial(tapEndpoint string) model {
 	if len(os.Getenv("DEBUG")) > 0 {
 		dbg = true
 	}
-
+	var opampsrv Server
+	NewServer(&opampsrv)
 	m := model{
 		tapEndpoint:       tapEndpoint,
 		rawDataList:       list.New(rawListItems, rawDelegate, listWidth+10, 0),
@@ -22,6 +23,7 @@ func Initial(tapEndpoint string) model {
 		debugMode:         dbg,
 		showHelpIndicator: true,
 		useRawDataView:    true,
+		opamp:             opampsrv,
 	}
 
 	m.rawDataList.Title = "Remote Tap"

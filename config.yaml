@@ -2,7 +2,7 @@ extensions:
   opamp:
     server:
       ws:
-        endpoint: ws://0.0.0.0:12000/v1/opamp
+        endpoint: ws://host.docker.internal:12000/v1/opamp
         tls:
           insecure: true
 receivers:
@@ -27,6 +27,7 @@ exporters:
   debug:
 
 service:
+  extensions: [opamp]
   pipelines:
     logs:
       receivers: [otlp]
