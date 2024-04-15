@@ -24,10 +24,11 @@ func Initial(tapEndpoint string) model {
 		useRawDataView:    true,
 	}
 
-	m.rawDataList.Title = "🔭"
-	m.rawDataList.SetStatusBarItemName("data", "data")
+	m.rawDataList.Title = "Remote Tap"
+	m.rawDataList.SetStatusBarItemName("item", "items")
 	m.rawDataList.SetFilteringEnabled(true)
-	m.rawDataList.SetShowHelp(true)
+	m.rawDataList.SetShowHelp(false)
+	m.rawDataList.SetShowPagination(false)
 
 	return m
 }

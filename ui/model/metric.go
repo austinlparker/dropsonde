@@ -1,12 +1,9 @@
 package model
 
 import (
-	"fmt"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"slices"
-	"strconv"
-	"strings"
 )
 
 type Timeseries struct {
@@ -16,38 +13,6 @@ type Timeseries struct {
 	Resources   pcommon.Resource
 	Attributes  pcommon.Map
 	DataPoints  pmetric.NumberDataPointSlice
-}
-
-func TimeseriesToString(ts Timeseries) string {
-	s := strings.Builder{}
-	s.WriteString(fmt.Sprintf("Name: %v", ts.Name))
-	s.WriteString(fmt.Sprintf("\nDescription: %v", ts.Description))
-	s.WriteString("\n\nScope Information")
-	s.WriteString(fmt.Sprintf("\nName: %v", ts.Scope.Name()))
-	s.WriteString(fmt.Sprintf("\nVersion: %v", ts.Scope.Version()))
-	s.WriteString(fmt.Sprintf("\nAttributes: %v", ts.Scope.Attributes().AsRaw()))
-	s.WriteString("\n\nResource Information")
-	s.WriteString(fmt.Sprintf("\nAttributes: %v", ts.Resources.Attributes().AsRaw()))
-	s.WriteString("\nAttributes\n")
-	s.WriteString(fmt.Sprintf("\nAttributes: %v", ts.Attributes.AsRaw()))
-	s.WriteString("\nData Points\n")
-	for i := 0; i < ts.DataPoints.Len(); i++ {
-		var dp string
-		var t string
-		t = ts.DataPoints.At(i).Timestamp().String()
-		switch ts.DataPoints.At(i).ValueType() {
-		case pmetric.NumberDataPointValueTypeInt:
-			dp = strconv.FormatInt(ts.DataPoints.At(i).IntValue(), 10)
-		case pmetric.NumberDataPointValueTypeDouble:
-			dp = strconv.FormatFloat(ts.DataPoints.At(i).DoubleValue(), 'f', -1, 64)
-		case pmetric.NumberDataPointValueTypeEmpty:
-			dp = "Empty"
-		}
-		s.WriteString(fmt.Sprintf("\nTime: %v", t))
-		s.WriteString(fmt.Sprintf("\nValue: %v\n", dp))
-		s.WriteString(fmt.Sprintf("\nAttributes: %v\n", ts.DataPoints.At(i).Attributes().AsRaw()))
-	}
-	return s.String()
 }
 
 func ParseMetricMessage(msg WSMessage) (pmetric.Metrics, error) {

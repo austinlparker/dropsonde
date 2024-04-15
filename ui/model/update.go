@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
-	"slices"
 	"time"
 )
 
@@ -39,7 +38,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case tea.WindowSizeMsg:
-		_, h := stackListStyle.GetFrameSize()
+		h := stackListStyle.GetMaxHeight()
 		m.terminalHeight = msg.Height
 		m.terminalWidth = msg.Width
 		m.rawDataList.SetHeight(msg.Height - h - 10)
@@ -102,12 +101,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		return m, WaitForMessages(m.channel)
-	case TimeseriesChosenMessage:
-		idx := slices.IndexFunc(m.metrics, func(ts Timeseries) bool {
-			return ts.Name == msg.name
-		})
-		m.valueVP.SetContent(TimeseriesToString(m.metrics[idx]))
-		return m, nil
 	case RawDataViewMessage:
 		m.valueVP.SetContent(msg.data)
 		return m, nil

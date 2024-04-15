@@ -17,7 +17,7 @@ var (
 	stackListStyle = baseListStyle.Copy().
 			Width(listWidth+5).
 			Border(lipgloss.RoundedBorder(), true).
-			BorderForeground(lipgloss.Color("#3c3836"))
+			BorderForeground(lipgloss.Color(OTEL_YELLOW))
 
 	viewPortStyle = baseListStyle.Copy().
 			Width(150).
@@ -26,7 +26,7 @@ var (
 	modeStyle = baseStyle.Copy().
 			Align(lipgloss.Center).
 			Bold(true).
-			Background(lipgloss.Color("#b8bb26"))
+			Background(lipgloss.Color(OTEL_YELLOW))
 
 	kMsgValueTitleStyle = baseStyle.Copy().
 				Bold(true).

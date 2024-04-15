@@ -6,7 +6,9 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"go.opentelemetry.io/collector/pdata/plog"
 	"go.opentelemetry.io/collector/pdata/pmetric"
+	"go.opentelemetry.io/collector/pdata/ptrace"
 )
 
 func newRawDelegateKeyMap() *rawDelegateKeyMap {
@@ -21,9 +23,9 @@ func newRawDelegateKeyMap() *rawDelegateKeyMap {
 func newRawItemDelegate(keys *rawDelegateKeyMap) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
-	//lm := otlptext.NewTextLogsMarshaler()
+	lm := otlptext.NewTextLogsMarshaler()
 	mm := otlptext.NewTextMetricsMarshaler()
-	//tm := otlptext.NewTextTracesMarshaler()
+	tm := otlptext.NewTextTracesMarshaler()
 
 	d.Styles.SelectedTitle = d.Styles.
 		SelectedTitle.
@@ -55,8 +57,21 @@ func newRawItemDelegate(keys *rawDelegateKeyMap) list.DefaultDelegate {
 						if err != nil {
 							return nil
 						}
-
 						res, err = mm.MarshalMetrics(metrics)
+					case LogData:
+						unmarshaler := &plog.JSONUnmarshaler{}
+						logs, err := unmarshaler.UnmarshalLogs([]byte(item.item))
+						if err != nil {
+							return nil
+						}
+						res, err = lm.MarshalLogs(logs)
+					case TraceData:
+						unmarshaler := &ptrace.JSONUnmarshaler{}
+						traces, err := unmarshaler.UnmarshalTraces([]byte(item.item))
+						if err != nil {
+							return nil
+						}
+						res, err = tm.MarshalTraces(traces)
 					}
 					return showRawData(string(res))
 				} else {

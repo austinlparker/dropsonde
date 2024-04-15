@@ -60,8 +60,8 @@ func (m model) View() string {
 	}
 
 	footerStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#282828")).
-		Background(lipgloss.Color("#7c6f64"))
+		Foreground(lipgloss.Color(OTEL_BLUE)).
+		Background(lipgloss.Color(OTEL_YELLOW))
 
 	var helpMsg string
 	if m.showHelpIndicator {
@@ -70,8 +70,6 @@ func (m model) View() string {
 
 	if m.debugMode {
 		debugMsg += fmt.Sprintf(" %v", m.activeView)
-		debugMsg += fmt.Sprintf(" th: %v", m.terminalHeight)
-		debugMsg += fmt.Sprintf(" tw: %v", m.terminalWidth)
 	}
 
 	footerStr := fmt.Sprintf("%s%s%s%s%s",
