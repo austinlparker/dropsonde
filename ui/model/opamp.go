@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/austinlparker/dropsonde/internal/opampsrv"
 	data "github.com/austinlparker/dropsonde/internal/opampsrv/agent"
+	tea "github.com/charmbracelet/bubbletea"
 	"log"
 	"os"
 	"strings"
@@ -19,8 +20,7 @@ func NewServer(s *Server) {
 		log.Fatal(err)
 	}
 	var logger = log.New(file, "", log.LstdFlags|log.Lmicroseconds)
-	agents := &data.Agents{}
-	server := opampsrv.NewServer(agents)
+	server := opampsrv.NewServer(&data.AllAgents)
 	server.Start()
 	s.server = server
 	logger.Println("Server started")
@@ -35,4 +35,11 @@ func (s *Server) GetAgents() string {
 		str.WriteString(agent.Status.String())
 	}
 	return str.String()
+}
+
+func (m model) showOpAmpData() tea.Cmd {
+	return func() tea.Msg {
+		op := m.opamp.GetAgents()
+		return OpAmpViewMessage{op}
+	}
 }

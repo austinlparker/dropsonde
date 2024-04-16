@@ -42,6 +42,12 @@ func (m model) View() string {
 	} else {
 		helpVP = viewPortStyle.Render(fmt.Sprintf("  %s\n\n%s\n", kMsgValueTitleStyle.Render("Help"), m.helpVP.View()))
 	}
+	var opampVP string
+	if !m.opampVPReady {
+		opampVP = "\n  Initializing..."
+	} else {
+		opampVP = viewPortStyle.Render(fmt.Sprintf(" %s\n\n%s\n", kMsgValueTitleStyle.Render("OpAMP"), m.opampVP.View()))
+	}
 
 	switch m.vpFullScreen {
 	case false:
@@ -56,6 +62,8 @@ func (m model) View() string {
 			content = msgValueVP
 		case HelpView:
 			content = helpVP
+		case OpAmpView:
+			content = opampVP
 		}
 	}
 

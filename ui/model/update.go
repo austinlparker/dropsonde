@@ -40,7 +40,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.lastView = m.activeView
 			m.activeView = OpAmpView
 			m.vpFullScreen = true
-			return m, nil
+			return m, m.showOpAmpData()
 		}
 	case tea.WindowSizeMsg:
 		h := stackListStyle.GetMaxHeight()
