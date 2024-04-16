@@ -36,6 +36,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.activeView = ValueView
 			m.vpFullScreen = false
 			return m, nil
+		case "o":
+			m.lastView = m.activeView
+			m.activeView = OpAmpView
+			m.vpFullScreen = true
+			return m, m.showOpAmpData()
 		}
 	case tea.WindowSizeMsg:
 		h := stackListStyle.GetMaxHeight()
@@ -61,6 +66,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.helpVP.Width = 120
 			m.helpVP.Height = 20
 		}
+
+		if !m.opampVPReady {
+			m.opampVP = viewport.New(120, m.terminalHeight-7)
+			m.opampVP.HighPerformanceRendering = useHighPerformanceRenderer
+			m.opampVPReady = true
+		} else {
+			m.opampVP.Width = 120
+			m.opampVP.Height = 20
+		}
+
 	case NewClientMessage:
 		m.wsConn = msg.conn
 		return m, ListenForMessage(m.wsConn, m.channel)
@@ -104,6 +119,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case RawDataViewMessage:
 		m.valueVP.SetContent(msg.data)
 		return m, nil
+	case OpAmpViewMessage:
+		m.opampVP.SetContent(msg.data)
 	}
 
 	switch m.activeView {
@@ -115,6 +132,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	case HelpView:
 		m.helpVP, cmd = m.helpVP.Update(msg)
+		cmds = append(cmds, cmd)
+	case OpAmpView:
+		m.opampVP, cmd = m.opampVP.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 

@@ -48,3 +48,7 @@ type TimeseriesChosenMessage struct {
 type RawDataViewMessage struct {
 	data string
 }
+
+type OpAmpViewMessage struct {
+	data string
+}

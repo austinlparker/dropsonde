@@ -15,6 +15,7 @@ const (
 	ListView stateView = iota
 	ValueView
 	HelpView
+	OpAmpView
 )
 
 type model struct {
@@ -43,6 +44,9 @@ type model struct {
 	terminalHeight    int
 	terminalWidth     int
 	useRawDataView    bool
+	opamp             Server
+	opampVPReady      bool
+	opampVP           viewport.Model
 }
 
 func (m model) Init() tea.Cmd {
