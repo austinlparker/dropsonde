@@ -1,9 +1,6 @@
 package model
 
-var HelpText = `
-manual
-
-dropsonde has two views:
+var HelpText = `dropsonde has two views:
 - remote tap viewer
 - opamp config viewer
 
@@ -15,7 +12,8 @@ general
 remote tap
 	v				switch to value
 	l				switch to data list
-	enter			select item in list
+	up/down			move between items
+	left/right		jump between pages
 	/				filter view
 
 	in filter:
@@ -24,5 +22,5 @@ remote tap
 		2			view logs
 
 opamp
-	not yet implemented
+	o 				switch to opamp view
 `

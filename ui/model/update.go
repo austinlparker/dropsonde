@@ -49,7 +49,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.rawDataList.SetHeight(msg.Height - h - 10)
 
 		if !m.valueVPReady {
-			m.valueVP = viewport.New(120, m.terminalHeight-8)
+			m.valueVP = viewport.New(m.terminalWidth-60, m.terminalHeight-8)
 			m.valueVP.HighPerformanceRendering = useHighPerformanceRenderer
 			m.valueVPReady = true
 		} else {
@@ -58,7 +58,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if !m.helpVPReady {
-			m.helpVP = viewport.New(120, m.terminalHeight-7)
+			m.helpVP = viewport.New(m.terminalWidth-60, m.terminalHeight-7)
 			m.helpVP.HighPerformanceRendering = useHighPerformanceRenderer
 			m.helpVP.SetContent(HelpText)
 			m.helpVPReady = true
@@ -68,7 +68,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if !m.opampVPReady {
-			m.opampVP = viewport.New(120, m.terminalHeight-7)
+			m.opampVP = viewport.New(m.terminalWidth-60, m.terminalHeight-7)
 			m.opampVP.HighPerformanceRendering = useHighPerformanceRenderer
 			m.opampVPReady = true
 		} else {

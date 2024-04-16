@@ -29,8 +29,8 @@ func newRawItemDelegate(keys *rawDelegateKeyMap) list.DefaultDelegate {
 
 	d.Styles.SelectedTitle = d.Styles.
 		SelectedTitle.
-		Foreground(lipgloss.Color(OTEL_BLUE)).
-		BorderLeftForeground(lipgloss.Color(OTEL_BLUE))
+		Foreground(lipgloss.Color(OTelBlue)).
+		BorderLeftForeground(lipgloss.Color(OTelBlue))
 	d.Styles.SelectedDesc = d.Styles.
 		SelectedTitle.
 		Copy()
