@@ -2,73 +2,67 @@ package model
 
 import (
 	"fmt"
+	"github.com/austinlparker/dropsonde/ui/components"
+	"github.com/austinlparker/dropsonde/ui/theme"
+	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/charmbracelet/lipgloss"
 )
 
-var (
-	listWidth = 60
-)
-
-func (m model) View() string {
-	var content string
-	var msgsViewPtr string
-	var valueViewPtr string
-	var statusBar string
-	var debugMsg string
-
-	m.rawDataList.Title += msgsViewPtr
-
-	var msgValueVP string
-	if !m.valueVPReady {
-		msgValueVP = "\n  Initializing..."
-	} else {
-		msgValueVP = viewPortStyle.Render(fmt.Sprintf("%s%s\n\n%s\n", valueTitleStyle.Render("Message Value"), valueViewPtr, m.valueVP.View()))
-	}
-	var helpVP string
-	if !m.helpVPReady {
-		helpVP = "\n  Initializing..."
-	} else {
-		helpVP = viewPortStyle.Render(fmt.Sprintf("  %s\n\n%s\n", valueTitleStyle.Width(m.terminalWidth).Render("Help"), m.helpVP.View()))
-	}
-	var opampVP string
-	if !m.opampVPReady {
-		opampVP = "\n  Initializing..."
-	} else {
-		opampVP = viewPortStyle.Render(fmt.Sprintf(" %s\n\n%s\n", valueTitleStyle.Width(m.terminalWidth).Render("OpAMP"), m.opampVP.View()))
+func (m *model) View() string {
+	if m.isQuitting {
+		return ""
 	}
 
-	switch m.vpFullScreen {
-	case false:
-		content = lipgloss.JoinHorizontal(
+	var v string
+
+	activeTab := m.ActiveTab()
+
+	if m.errorMessage != "" {
+		v = lipgloss.NewStyle().Foreground(theme.DefaultTheme().Accent).Render(m.errorMessage)
+	} else if activeTab.IsReady() {
+		v = activeTab.View()
+	} else { // show spinner if tab's data is not ready
+		v = fmt.Sprintf("\n %s \n\n", m.spinner.View())
+	}
+
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		components.Header(),
+		lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			stackListStyle.Render(m.rawDataList.View()),
-			msgValueVP,
-		)
-	case true:
-		switch m.activeView {
-		case ValueView:
-			content = msgValueVP
-		case HelpView:
-			content = helpVP
-		case OpAmpView:
-			content = opampVP
-		}
-	}
-
-	statusNameKey := statusStyle.Render("🔭 dropsonde")
-	statusModeKey := statusBarTextStyle.Render(fmt.Sprintf("🖥️ mode: %v", m.activeView.Name()))
-	statusBarHelpKey := statusBarTextStyle.Render(" ? for help")
-
-	bar := lipgloss.JoinHorizontal(lipgloss.Top, statusNameKey, statusModeKey, statusBarHelpKey)
-	statusBar = statusBarStyle.Width(m.terminalWidth).Render(bar)
-
-	if m.debugMode {
-		debugMsg += fmt.Sprintf(" %v", m.activeView)
-	}
-
-	return lipgloss.JoinVertical(lipgloss.Left,
-		content,
-		statusBar,
+			lipgloss.JoinVertical(
+				lipgloss.Right,
+				m.tabs.View(),
+			),
+			theme.ActiveItemStyle.Render(v),
+		),
+		m.helpView.View(),
 	)
+}
+
+func (m *model) setUnreadyAllModels() {
+	m.opAmpPager.SetUnready()
+	m.dataPager.SetUnready()
+	m.dataTable.SetUnready()
+}
+
+func (m *model) updateAllModels(msg tea.Msg) {
+	m.opAmpPager.Update(msg)
+	m.dataPager.Update(msg)
+	m.dataTable.Update(msg)
+}
+
+func (m *model) refresh() tea.Cmd {
+	m.errorMessage = ""
+
+	return tea.Batch(
+		components.SetModelLoading,
+	)
+}
+
+func (m *model) ActiveTab() components.ContentModel {
+	item := m.tabs.CurrentTab().Item
+	cm := item.(components.ContentModel)
+	return cm
 }

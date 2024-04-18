@@ -65,3 +65,7 @@ func closeConn(conn *websocket.Conn) {
 		return
 	}
 }
+
+func parseWSMessageToTable(msg []byte) tea.Cmd {
+
+}

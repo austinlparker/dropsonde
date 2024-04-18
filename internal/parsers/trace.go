@@ -1,10 +1,10 @@
-package model
+package parsers
 
 import "go.opentelemetry.io/collector/pdata/ptrace"
 
-func ParseTraceMessage(msg WSMessage) (ptrace.Traces, error) {
+func ParseTraceMessage(msg []byte) (ptrace.Traces, error) {
 	unmarshaler := &ptrace.JSONUnmarshaler{}
-	traces, err := unmarshaler.UnmarshalTraces(msg.data)
+	traces, err := unmarshaler.UnmarshalTraces(msg)
 	if err != nil {
 		return traces, err
 	}

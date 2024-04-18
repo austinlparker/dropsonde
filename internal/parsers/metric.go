@@ -1,4 +1,4 @@
-package model
+package parsers
 
 import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
@@ -15,9 +15,9 @@ type Timeseries struct {
 	DataPoints  pmetric.NumberDataPointSlice
 }
 
-func ParseMetricMessage(msg WSMessage) (pmetric.Metrics, error) {
+func ParseMetricMessage(msg []byte) (pmetric.Metrics, error) {
 	unmarshaler := &pmetric.JSONUnmarshaler{}
-	metrics, err := unmarshaler.UnmarshalMetrics(msg.data)
+	metrics, err := unmarshaler.UnmarshalMetrics(msg)
 	if err != nil {
 		return metrics, err
 	}

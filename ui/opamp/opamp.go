@@ -1,10 +1,9 @@
-package model
+package opamp
 
 import (
 	"fmt"
 	"github.com/austinlparker/dropsonde/internal/opampsrv"
 	data "github.com/austinlparker/dropsonde/internal/opampsrv/agent"
-	tea "github.com/charmbracelet/bubbletea"
 	"log"
 	"os"
 	"strings"
@@ -35,11 +34,4 @@ func (s *Server) GetAgents() string {
 		str.WriteString(agent.Status.String())
 	}
 	return str.String()
-}
-
-func (m model) showOpAmpData() tea.Cmd {
-	return func() tea.Msg {
-		op := m.opamp.GetAgents()
-		return OpAmpViewMessage{op}
-	}
 }

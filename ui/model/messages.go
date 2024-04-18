@@ -37,10 +37,6 @@ type ParsedLogMessage struct {
 	logs plog.Logs
 }
 
-type TimeseriesMessage struct {
-	ts []Timeseries
-}
-
 type TimeseriesChosenMessage struct {
 	name string
 }
@@ -50,5 +46,9 @@ type RawDataViewMessage struct {
 }
 
 type OpAmpViewMessage struct {
+	data string
+}
+
+type TableDataViewMessage struct {
 	data string
 }
