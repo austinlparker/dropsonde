@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/austinlparker/dropsonde/ui/components"
-	opamp "github.com/austinlparker/dropsonde/ui/opamp"
+	"github.com/austinlparker/dropsonde/ui/opamp"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gorilla/websocket"
@@ -27,6 +27,8 @@ type model struct {
 	rtChannel  chan []byte
 	wsConn     *websocket.Conn
 	oaServer   opamp.Server
+
+	rawDataSlice []ResponseMsg
 }
 
 func (m *model) Init() tea.Cmd {
@@ -36,21 +38,22 @@ func (m *model) Init() tea.Cmd {
 	)
 }
 
-func newModel(tapEndpoint string) *model {
+func NewModel(tapEndpoint string) *model {
 	var opampsrv opamp.Server
 	opamp.NewServer(&opampsrv)
 	m := &model{
-		rtEndpoint: tapEndpoint,
-		rtChannel:  make(chan []byte),
-		oaServer:   opampsrv,
-		dataPager:  components.NewPager(),
-		opAmpPager: components.NewPager(),
-		dataTable:  components.NewTable([]int{20, 20, 20, 20, 20}),
-		helpView:   components.NewHelpModel(),
-		isQuitting: false,
-		width:      0,
-		height:     0,
-		spinner:    components.NewSpinner(),
+		rtEndpoint:   tapEndpoint,
+		rtChannel:    make(chan []byte),
+		oaServer:     opampsrv,
+		dataPager:    components.NewPager(),
+		opAmpPager:   components.NewPager(),
+		dataTable:    components.NewTable([]int{10, 90}),
+		helpView:     components.NewHelpModel(),
+		isQuitting:   false,
+		width:        0,
+		height:       0,
+		spinner:      components.NewSpinner(),
+		rawDataSlice: make([]ResponseMsg, 0),
 	}
 	m.tabs = components.NewTabs([]components.TabItem{
 		{Name: "raw", Item: m.dataTable},

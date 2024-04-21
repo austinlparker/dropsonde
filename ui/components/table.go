@@ -1,7 +1,6 @@
 package components
 
 import (
-	"github.com/austinlparker/dropsonde/ui"
 	"github.com/austinlparker/dropsonde/ui/theme"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
@@ -49,16 +48,16 @@ func (t *Table) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		tableWidth := percent(msg.Width, 100)
-		tableHeight := msg.Height - 9
+		tableHeight := percent(msg.Height, 25)
 
 		t.SetWidth(tableWidth)
 		t.SetHeight(tableHeight)
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, ui.KeyBindings.Up):
+		case key.Matches(msg, KeyBindings.Up):
 			t.MoveUp(1)
-		case key.Matches(msg, ui.KeyBindings.Down):
+		case key.Matches(msg, KeyBindings.Down):
 			t.MoveDown(1)
 		}
 	default:

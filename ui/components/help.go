@@ -1,7 +1,6 @@
 package components
 
 import (
-	"github.com/austinlparker/dropsonde/ui"
 	"github.com/austinlparker/dropsonde/ui/theme"
 	"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
@@ -10,14 +9,14 @@ import (
 
 type HelpModel struct {
 	help       help.Model
-	keys       ui.KeyMap
+	keys       KeyMap
 	inputStyle lipgloss.Style
 	quitting   bool
 }
 
 func NewHelpModel() HelpModel {
 	return HelpModel{
-		keys:       ui.KeyBindings,
+		keys:       KeyBindings,
 		help:       help.New(),
 		inputStyle: lipgloss.NewStyle().Foreground(theme.DefaultTheme().Primary),
 	}

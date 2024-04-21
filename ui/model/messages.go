@@ -52,3 +52,7 @@ type OpAmpViewMessage struct {
 type TableDataViewMessage struct {
 	data string
 }
+
+type RawDataUpdated struct {
+	data ResponseMsg
+}

@@ -1,12 +1,31 @@
 package model
 
 import (
+	"encoding/json"
+	"github.com/austinlparker/dropsonde/internal/parsers"
+	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 )
+
+type ResponseMsg struct {
+	ResourceSpans   json.RawMessage `json:"resourceSpans,omitempty"`
+	ResourceMetrics json.RawMessage `json:"resourceMetrics,omitempty"`
+	ResourceLogs    json.RawMessage `json:"resourceLogs,omitempty"`
+	ts              time.Time
+}
+
+type RawTableData struct {
+	columns table.Row
+	rows    []table.Row
+}
+
+func (rd RawTableData) Columns() table.Row { return rd.columns }
+func (rd RawTableData) Rows() []table.Row  { return rd.rows }
 
 func Dial(endpoint string) tea.Cmd {
 	return func() tea.Msg {
@@ -66,6 +85,44 @@ func closeConn(conn *websocket.Conn) {
 	}
 }
 
-func parseWSMessageToTable(msg []byte) tea.Cmd {
+func PushRawMessage(msg []byte) tea.Cmd {
+	return func() tea.Msg {
+		tea.Println("Raw Message:", string(msg))
+		var res ResponseMsg
+		err := json.Unmarshal(msg, &res)
+		if err != nil {
+			return ErrMessage{err}
+		}
+		tea.Println("pushing raw message")
+		res.ts = time.Now()
+		return RawDataUpdated{res}
+	}
+}
 
+func ParseMessage(msg []byte) tea.Cmd {
+	return func() tea.Msg {
+		var res ResponseMsg
+		err := json.Unmarshal(msg, &res)
+		if err != nil {
+			return ErrMessage{err}
+		}
+		if res.ResourceMetrics != nil {
+			metric, err := parsers.ParseMetricMessage(msg)
+			if err != nil {
+				return ErrMessage{err}
+			}
+			return ParsedMetricMessage{metric}
+		}
+		if res.ResourceSpans != nil {
+			spans, err := parsers.ParseTraceMessage(msg)
+			if err != nil {
+				return ErrMessage{err}
+			}
+			return ParsedTraceMessage{spans}
+		}
+		if res.ResourceLogs != nil {
+			return ErrMessage{nil}
+		}
+		return ErrMessage{nil}
+	}
 }

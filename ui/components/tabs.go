@@ -33,9 +33,9 @@ func (t *Tabs) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, t.help.keys.Up), key.Matches(msg, t.help.keys.ShiftTab):
+		case key.Matches(msg, KeyBindings.Tab):
 			t.decrementSelection()
-		case key.Matches(msg, t.help.keys.Down), key.Matches(msg, t.help.keys.Tab):
+		case key.Matches(msg, KeyBindings.ShiftTab):
 			t.incrementSelection()
 		}
 	}
@@ -47,9 +47,9 @@ func (t *Tabs) View() string {
 
 	for i, tl := range t.tabList {
 		if i == t.selectedTab {
-			renderedTabs = append(renderedTabs, theme.ActiveTabStyle.Render(tl.name))
+			renderedTabs = append(renderedTabs, theme.ActiveTabStyle.Render(tl.Name))
 		} else {
-			renderedTabs = append(renderedTabs, theme.InactiveTabStyle.Render(tl.name))
+			renderedTabs = append(renderedTabs, theme.InactiveTabStyle.Render(tl.Name))
 		}
 	}
 

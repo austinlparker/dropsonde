@@ -2,10 +2,10 @@ package ui
 
 import (
 	"fmt"
+	"github.com/austinlparker/dropsonde/ui/model"
 	"log"
 	"os"
 
-	"github.com/austinlparker/dropsonde/ui/model"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -19,7 +19,7 @@ func RenderUI(tapEndpoint string) {
 		defer f.Close()
 	}
 
-	p := tea.NewProgram(model.Initial(tapEndpoint), tea.WithAltScreen(), tea.WithMouseCellMotion())
+	p := tea.NewProgram(model.NewModel(tapEndpoint), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		log.Fatalf("error running program: %v", err)
 	}
